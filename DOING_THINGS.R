@@ -1,18 +1,23 @@
 first_code = 1
 library('swirl')
 
+library(tidyverse)
+library(tibble)
+library(readr)
 
 
-caminho <- "C:\\Users\\estev\\Downloads\\14_310x_Intro_to_R"
 
+papers <- as_tibble(read_csv("CitesforSara.csv"))
+papers_selected <-  select(papers, journal, year, cites, title, au1)
 
+soma_eco <- papers %>%
+  filter(journal == "Econometrica") %>%
+  group_by(year) %>%
+  summarise(soma_citacoes = sum(cites, na.rm = TRUE))
 
-setwd("C:\\Users\\estev\\Downloads")
+sum(soma_eco$soma_citacoes)
 
-uzp <- "asset-v1_MITxT+14.310x+3T2023+type@asset+block@14_310x_Intro_to_R.zip"
+numero_autores_distintos <- papers %>%
+  summarise(total_autores_distintos = n_distinct(au1, na.rm = TRUE))
 
-unzip(caminho, exdir = "C:\\Users\\estev\\Downloads\\")
-
-install_course_zip(uzp,multi=FALSE)
-
-
+print(numero_autores_distintos$total_autores_distintos)
