@@ -45,12 +45,50 @@ library(lmtest)
 rounds_01$interaction_enrolled_round <- rounds_01$enrolled * rounds_01$round
 
 
-did_model <- lm(health_expenditures ~ enrolled + round + interaction_enrolled_round, data = rounds_01)
+did_model <- lm(health_expenditures ~ enrolled + round +
+                  interaction_enrolled_round + poverty_index + age_hh + age_sp +
+                  educ_hh, educ_sp, data = rounds_01)
 
 
 
 
 did_model_clustered <- coeftest(did_model, vcov. = vcovHC(did_model, cluster = "locality"))
+
+
+summary(did_model)
+
+#quinta questão
+
+did_model_control <- lm(health_expenditures ~ enrolled + round +
+                          interaction_enrolled_round + poverty_index + age_hh + age_sp +
+                          educ_hh + educ_sp + female_hh + indigenous + dirtfloor + hospital_distance,
+                        data = rounds_01)
+
+summary(did_model_control)
+
+#sexta questão
+
+library(plm)
+
+rounds_01$round <- as.factor(rounds_01$round)
+
+panel_data <- pdata.frame(rounds_01, index = c("household_identifier", "round"))
+
+did_fe_model <- plm(health_expenditures ~ enrolled + round + 
+                      interaction_enrolled_round + poverty_index + age_hh + age_sp + 
+                      educ_hh + educ_sp + female_hh + indigenous + dirtfloor + hospital_distance, 
+                    data = panel_data, model = "within")
+
+summary(did_fe_model)
+
+#oitava questão
+
+rounds_01$round <- as.factor(rounds_01$round)
+
+panel_data <- pdata.frame(rounds_01, index = c("household_identifier", "round"))
+
+did_model <- plm(health_expenditures ~ enrolled * round,
+                 data = panel_data, model = "within")
 
 
 summary(did_model)
